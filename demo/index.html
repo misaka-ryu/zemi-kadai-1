@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>映像分析プラットフォーム - デモ版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        .card-hover:hover {
+            transform: translateY(-4px);
+            transition: transform 0.2s ease-in-out;
+        }
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-500 p-2 rounded-lg">
+                        <i data-lucide="play" class="h-6 w-6 text-white"></i>
+                    </div>
+                    <h1 class="text-xl font-bold text-gray-900">映像分析プラットフォーム</h1>
+                    <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">デモ版</span>
+                </div>
+                
+                <nav class="flex space-x-4">
+                    <button onclick="showUpload()" class="nav-btn px-4 py-2 rounded-md flex items-center space-x-2 bg-blue-500 text-white">
+                        <i data-lucide="upload" class="h-4 w-4"></i>
+                        <span>アップロード</span>
+                    </button>
+                    
+                    <button onclick="showDashboard()" class="nav-btn px-4 py-2 rounded-md flex items-center space-x-2 text-gray-600 hover:text-gray-900">
+                        <i data-lucide="bar-chart-3" class="h-4 w-4"></i>
+                        <span>ダッシュボード</span>
+                    </button>
+                    
+                    <button onclick="showAnalysis()" class="nav-btn px-4 py-2 rounded-md flex items-center space-x-2 text-gray-600 hover:text-gray-900">
+                        <i data-lucide="brain" class="h-4 w-4"></i>
+                        <span>分析結果</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Upload Section -->
+        <div id="upload-section" class="space-y-8">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                    動画をアップロードして分析を開始
+                </h2>
+                <p class="text-lg text-gray-600">
+                    エンターテイメント特化のAI分析で、動画コンテンツのポテンシャルを解析します
+                </p>
+            </div>
+            
+            <!-- Feature Cards -->
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-lg shadow-sm border card-hover">
+                    <i data-lucide="zap" class="h-8 w-8 text-yellow-500 mb-4"></i>
+                    <h3 class="text-lg font-semibold mb-2">ハイライト抽出</h3>
+                    <p class="text-gray-600">盛り上がり度やアクションを自動検出し、最適なハイライト部分を抽出</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-sm border card-hover">
+                    <i data-lucide="brain" class="h-8 w-8 text-purple-500 mb-4"></i>
+                    <h3 class="text-lg font-semibold mb-2">感情解析</h3>
+                    <p class="text-gray-600">表情・音声からの感情スコア計算で、視聴者の反応を予測</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-sm border card-hover">
+                    <i data-lucide="target" class="h-8 w-8 text-green-500 mb-4"></i>
+                    <h3 class="text-lg font-semibold mb-2">最適化提案</h3>
+                    <p class="text-gray-600">編集点、サムネイル、字幕タイミングの最適化を自動提案</p>
+                </div>
+            </div>
+            
+            <!-- Upload Area -->
+            <div class="max-w-2xl mx-auto">
+                <div id="upload-area" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 cursor-pointer">
+                    <div class="space-y-4">
+                        <div class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                            <i data-lucide="film" class="h-8 w-8 text-gray-400"></i>
+                        </div>
+                        
+                        <div>
+                            <p class="text-lg font-medium text-gray-900 mb-2">
+                                動画ファイルをクリックしてアップロード
+                            </p>
+                            <button onclick="simulateUpload()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md flex items-center space-x-2 mx-auto transition-colors">
+                                <i data-lucide="upload" class="h-4 w-4"></i>
+                                <span>デモ分析を開始</span>
+                            </button>
+                        </div>
+                        
+                        <div class="text-xs text-gray-500 space-y-1">
+                            <p>対応形式: MP4, MOV, AVI, MKV</p>
+                            <p>※ デモ版では実際のアップロードは行いません</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="space-y-6 hidden">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">分析ダッシュボード</h2>
+                <p class="text-lg text-gray-600">動画コンテンツのパフォーマンス概要</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-2 rounded-lg bg-blue-50">
+                            <i data-lucide="eye" class="h-6 w-6 text-blue-600"></i>
+                        </div>
+                        <span class="text-sm font-medium text-green-600 bg-green-100 px-2 py-1 rounded">+12.5%</span>
+                    </div>
+                    <h3 class="text-sm font-medium text-gray-500 mb-1">総視聴時間</h3>
+                    <p class="text-2xl font-bold text-gray-900">1,234h</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-2 rounded-lg bg-red-50">
+                            <i data-lucide="heart" class="h-6 w-6 text-red-600"></i>
+                        </div>
+                        <span class="text-sm font-medium text-green-600 bg-green-100 px-2 py-1 rounded">+8.3%</span>
+                    </div>
+                    <h3 class="text-sm font-medium text-gray-500 mb-1">平均エンゲージメント</h3>
+                    <p class="text-2xl font-bold text-gray-900">85.2%</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-2 rounded-lg bg-green-50">
+                            <i data-lucide="share-2" class="h-6 w-6 text-green-600"></i>
+                        </div>
+                        <span class="text-sm font-medium text-green-600 bg-green-100 px-2 py-1 rounded">+15.7%</span>
+                    </div>
+                    <h3 class="text-sm font-medium text-gray-500 mb-1">総シェア数</h3>
+                    <p class="text-2xl font-bold text-gray-900">456</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-2 rounded-lg bg-purple-50">
+                            <i data-lucide="bar-chart-3" class="h-6 w-6 text-purple-600"></i>
+                        </div>
+                        <span class="text-sm font-medium text-green-600 bg-green-100 px-2 py-1 rounded">+23.1%</span>
+                    </div>
+                    <h3 class="text-sm font-medium text-gray-500 mb-1">分析済み動画</h3>
+                    <p class="text-2xl font-bold text-gray-900">89本</p>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <h3 class="text-lg font-semibold mb-4">エンゲージメント推移</h3>
+                    <div class="h-64">
+                        <canvas id="engagementChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <h3 class="text-lg font-semibold mb-4">コンテンツタイプ分布</h3>
+                    <div class="h-64">
+                        <canvas id="contentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Results Section -->
+        <div id="analysis-section" class="space-y-6 hidden">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">分析結果</h2>
+                <p class="text-lg text-gray-600">AI分析による詳細レポート</p>
+            </div>
+
+            <!-- Analysis Loading -->
+            <div id="analysis-loading" class="flex items-center justify-center py-12">
+                <div class="text-center">
+                    <div class="loading-spinner rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                    <p class="text-lg font-medium text-gray-900 mb-2">AI分析中...</p>
+                    <p class="text-sm text-gray-600">動画コンテンツを詳細分析しています</p>
+                </div>
+            </div>
+
+            <!-- Analysis Results -->
+            <div id="analysis-results" class="space-y-6 hidden">
+                <!-- Overall Scores -->
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <i data-lucide="award" class="h-5 w-5 mr-2 text-yellow-500"></i>
+                        総合分析スコア
+                    </h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-blue-600 mb-1">87</div>
+                            <div class="text-sm text-gray-600">エンゲージメント</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-green-600 mb-1">82</div>
+                            <div class="text-sm text-gray-600">視聴維持率</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-purple-600 mb-1">74</div>
+                            <div class="text-sm text-gray-600">シェア可能性</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-orange-600 mb-1">69</div>
+                            <div class="text-sm text-gray-600">バイラル性</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Tabs -->
+                <div class="bg-white rounded-lg shadow-sm border">
+                    <div class="border-b">
+                        <nav class="flex space-x-8 px-6">
+                            <button onclick="showAnalysisTab('highlights')" class="analysis-tab py-4 px-1 border-b-2 border-blue-500 text-blue-600 font-medium text-sm">
+                                ハイライト
+                            </button>
+                            <button onclick="showAnalysisTab('emotions')" class="analysis-tab py-4 px-1 border-b-2 border-transparent text-gray-500 font-medium text-sm">
+                                感情分析
+                            </button>
+                            <button onclick="showAnalysisTab('suggestions')" class="analysis-tab py-4 px-1 border-b-2 border-transparent text-gray-500 font-medium text-sm">
+                                最適化提案
+                            </button>
+                        </nav>
+                    </div>
+
+                    <div class="p-6">
+                        <!-- Highlights Tab -->
+                        <div id="highlights-tab" class="analysis-content">
+                            <h3 class="text-lg font-semibold mb-4">自動検出されたハイライト</h3>
+                            <div class="grid gap-4">
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                    <div>
+                                        <div class="font-medium text-gray-900">0:15</div>
+                                        <div class="text-sm text-gray-600">表情の変化が激しい</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-lg font-bold text-blue-600">92</div>
+                                        <div class="text-xs text-gray-500">スコア</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                    <div>
+                                        <div class="font-medium text-gray-900">1:34</div>
+                                        <div class="text-sm text-gray-600">音響レベルのピーク</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-lg font-bold text-blue-600">88</div>
+                                        <div class="text-xs text-gray-500">スコア</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                    <div>
+                                        <div class="font-medium text-gray-900">2:47</div>
+                                        <div class="text-sm text-gray-600">動きの激しいアクション</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-lg font-bold text-blue-600">95</div>
+                                        <div class="text-xs text-gray-500">スコア</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Emotions Tab -->
+                        <div id="emotions-tab" class="analysis-content hidden">
+                            <h3 class="text-lg font-semibold mb-4">時系列感情分析</h3>
+                            <div class="space-y-4">
+                                <div class="border rounded-lg p-4">
+                                    <div class="font-medium text-gray-900 mb-3">0-30s</div>
+                                    <div class="grid grid-cols-5 gap-2">
+                                        <div class="text-center">
+                                            <div class="h-2 bg-gray-200 rounded-full mb-1">
+                                                <div class="h-2 bg-yellow-500 rounded-full" style="width: 75%"></div>
+                                            </div>
+                                            <div class="text-xs text-gray-600">喜び 75%</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="h-2 bg-gray-200 rounded-full mb-1">
+                                                <div class="h-2 bg-blue-500 rounded-full" style="width: 5%"></div>
+                                            </div>
+                                            <div class="text-xs text-gray-600">悲しみ 5%</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="h-2 bg-gray-200 rounded-full mb-1">
+                                                <div class="h-2 bg-red-500 rounded-full" style="width: 10%"></div>
+                                            </div>
+                                            <div class="text-xs text-gray-600">怒り 10%</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="h-2 bg-gray-200 rounded-full mb-1">
+                                                <div class="h-2 bg-purple-500 rounded-full" style="width: 40%"></div>
+                                            </div>
+                                            <div class="text-xs text-gray-600">驚き 40%</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="h-2 bg-gray-200 rounded-full mb-1">
+                                                <div class="h-2 bg-gray-500 rounded-full" style="width: 20%"></div>
+                                            </div>
+                                            <div class="text-xs text-gray-600">中立 20%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Suggestions Tab -->
+                        <div id="suggestions-tab" class="analysis-content hidden">
+                            <h3 class="text-lg font-semibold mb-4">最適化提案</h3>
+                            <div class="space-y-4">
+                                <div class="border rounded-lg p-6">
+                                    <div class="flex items-start space-x-4">
+                                        <div class="bg-blue-100 p-3 rounded-lg">
+                                            <i data-lucide="target" class="h-6 w-6 text-blue-600"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center space-x-2 mb-2">
+                                                <h4 class="font-semibold text-gray-900">サムネイル</h4>
+                                                <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">推奨</span>
+                                            </div>
+                                            <p class="text-gray-700 mb-2">1:34の表情豊かな瞬間をサムネイルに使用することを推奨します</p>
+                                            <p class="text-sm text-green-600 font-medium">クリック率 +15% の改善が期待できます</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo Notice -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4 mt-8">
+            <div class="flex">
+                <i data-lucide="alert-circle" class="h-5 w-5 text-yellow-400 mt-0.5 mr-3 flex-shrink-0"></i>
+                <div class="text-sm">
+                    <p class="font-medium text-yellow-800 mb-1">デモ版について</p>
+                    <ul class="text-yellow-700 space-y-1 list-disc list-inside">
+                        <li>実際のAI分析は簡略化されたモック機能です</li>
+                        <li>ブラウザのみで動作し、サーバーは不要です</li>
+                        <li>ローカルファイルとして直接開くことができます</li>
+                        <li>実機能は Node.js + React 版で体験できます</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Navigation functions
+        function showUpload() {
+            hideAllSections();
+            document.getElementById('upload-section').classList.remove('hidden');
+            updateNavButtons('upload');
+        }
+
+        function showDashboard() {
+            hideAllSections();
+            document.getElementById('dashboard-section').classList.remove('hidden');
+            updateNavButtons('dashboard');
+            initCharts();
+        }
+
+        function showAnalysis() {
+            hideAllSections();
+            document.getElementById('analysis-section').classList.remove('hidden');
+            updateNavButtons('analysis');
+        }
+
+        function hideAllSections() {
+            document.getElementById('upload-section').classList.add('hidden');
+            document.getElementById('dashboard-section').classList.add('hidden');
+            document.getElementById('analysis-section').classList.add('hidden');
+        }
+
+        function updateNavButtons(active) {
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-blue-500', 'text-white');
+                btn.classList.add('text-gray-600', 'hover:text-gray-900');
+            });
+            
+            if (active === 'upload') {
+                buttons[0].classList.remove('text-gray-600', 'hover:text-gray-900');
+                buttons[0].classList.add('bg-blue-500', 'text-white');
+            } else if (active === 'dashboard') {
+                buttons[1].classList.remove('text-gray-600', 'hover:text-gray-900');
+                buttons[1].classList.add('bg-blue-500', 'text-white');
+            } else if (active === 'analysis') {
+                buttons[2].classList.remove('text-gray-600', 'hover:text-gray-900');
+                buttons[2].classList.add('bg-blue-500', 'text-white');
+            }
+        }
+
+        // Analysis functions
+        function simulateUpload() {
+            showAnalysis();
+            document.getElementById('analysis-loading').classList.remove('hidden');
+            document.getElementById('analysis-results').classList.add('hidden');
+            
+            setTimeout(() => {
+                document.getElementById('analysis-loading').classList.add('hidden');
+                document.getElementById('analysis-results').classList.remove('hidden');
+            }, 2000);
+        }
+
+        function showAnalysisTab(tabName) {
+            // Hide all analysis content
+            const contents = document.querySelectorAll('.analysis-content');
+            contents.forEach(content => content.classList.add('hidden'));
+            
+            // Show selected content
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            
+            // Update tab buttons
+            const tabs = document.querySelectorAll('.analysis-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('border-blue-500', 'text-blue-600');
+                tab.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            event.target.classList.remove('border-transparent', 'text-gray-500');
+            event.target.classList.add('border-blue-500', 'text-blue-600');
+        }
+
+        // Chart initialization
+        function initCharts() {
+            // Engagement Chart
+            const engagementCtx = document.getElementById('engagementChart');
+            if (engagementCtx && !engagementCtx.chartInitialized) {
+                new Chart(engagementCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                        datasets: [{
+                            label: 'エンゲージメント率',
+                            data: [65, 72, 80, 78, 85, 88],
+                            borderColor: 'rgb(59, 130, 246)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+                engagementCtx.chartInitialized = true;
+            }
+
+            // Content Type Chart
+            const contentCtx = document.getElementById('contentChart');
+            if (contentCtx && !contentCtx.chartInitialized) {
+                new Chart(contentCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['コメディ', 'アクション', 'ドラマ', 'ホラー', 'ロマンス'],
+                        datasets: [{
+                            data: [35, 25, 20, 12, 8],
+                            backgroundColor: [
+                                '#3B82F6',
+                                '#10B981',
+                                '#F59E0B',
+                                '#EF4444',
+                                '#8B5CF6'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+                contentCtx.chartInitialized = true;
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            showUpload();
+        });
+    </script>
+</body>
+</html>
