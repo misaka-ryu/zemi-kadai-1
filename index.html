@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>映像分析プラットフォーム - ゼミ課題1</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .main-content {
+            padding: 50px;
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .demo-card {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+        
+        .demo-card:hover {
+            transform: translateY(-10px);
+            border-color: #4f46e5;
+            box-shadow: 0 20px 40px rgba(79, 70, 229, 0.15);
+        }
+        
+        .demo-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .demo-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #1e293b;
+        }
+        
+        .demo-description {
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            display: inline-block;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+        
+        .demo-button.youtube {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+        }
+        
+        .demo-button.youtube:hover {
+            box-shadow: 0 10px 20px rgba(255, 0, 0, 0.3);
+        }
+        
+        .features {
+            background: #f1f5f9;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 40px 0;
+        }
+        
+        .features h3 {
+            text-align: center;
+            color: #1e293b;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+        }
+        
+        .feature-icon {
+            font-size: 2em;
+        }
+        
+        .github-section {
+            background: linear-gradient(135deg, #24292e, #586069);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            border-radius: 15px;
+            margin: 40px 0;
+        }
+        
+        .github-button {
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            display: inline-block;
+            font-weight: 600;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .github-button:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .notice {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #92400e;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 30px;
+            }
+            
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎬 映像分析プラットフォーム</h1>
+            <div class="subtitle">AI powered video analysis for entertainment</div>
+            <p>ゼミ課題1 - エンターテイメント特化映像分析システム</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Demo Selection -->
+            <h2 style="text-align: center; color: #1e293b; margin-bottom: 30px;">
+                🚀 デモを体験する
+            </h2>
+            
+            <div class="demo-grid">
+                <!-- YouTube分析デモ -->
+                <div class="demo-card">
+                    <div class="demo-icon">📺</div>
+                    <div class="demo-title">YouTube分析デモ</div>
+                    <div class="demo-description">
+                        YouTubeのURLを貼るだけで動画を分析！<br>
+                        ・動画埋め込み再生<br>
+                        ・ハイライトシーンジャンプ<br>
+                        ・YouTube特化最適化提案
+                    </div>
+                    <a href="./YouTube分析デモ.html" class="demo-button youtube">
+                        📺 YouTube分析を開始
+                    </a>
+                </div>
+                
+                <!-- 標準デモ -->
+                <div class="demo-card">
+                    <div class="demo-icon">🎯</div>
+                    <div class="demo-title">標準分析デモ</div>
+                    <div class="demo-description">
+                        完全オフライン動作の映像分析デモ<br>
+                        ・全機能統合ダッシュボード<br>
+                        ・AI分析シミュレーション<br>
+                        ・インタラクティブUI体験
+                    </div>
+                    <a href="./START_HERE.html" class="demo-button">
+                        🎯 標準デモを開始
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Features Section -->
+            <div class="features">
+                <h3>✨ 主要機能</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon">⚡</div>
+                        <div>
+                            <strong>ハイライト抽出</strong><br>
+                            盛り上がりポイントを自動検出
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🎭</div>
+                        <div>
+                            <strong>感情解析</strong><br>
+                            表情・音声から感情を分析
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">💡</div>
+                        <div>
+                            <strong>最適化提案</strong><br>
+                            エンゲージメント向上の具体案
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📈</div>
+                        <div>
+                            <strong>パフォーマンス予測</strong><br>
+                            バイラル性・シェア可能性予測
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📊</div>
+                        <div>
+                            <strong>ダッシュボード</strong><br>
+                            統計データの可視化表示
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🔗</div>
+                        <div>
+                            <strong>YouTube連携</strong><br>
+                            URL入力で即座に分析開始
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- GitHub Section -->
+            <div class="github-section">
+                <h3 style="margin-bottom: 20px;">💻 GitHub リポジトリ</h3>
+                <p style="margin-bottom: 25px; opacity: 0.9;">
+                    ソースコード、ドキュメント、追加ファイルはGitHubで公開中
+                </p>
+                <a href="https://github.com/misaka-ryu/zemi-kadai-1" class="github-button">
+                    📂 GitHubを開く
+                </a>
+                <a href="https://github.com/misaka-ryu/zemi-kadai-1/archive/refs/heads/master.zip" class="github-button">
+                    📥 ZIPダウンロード
+                </a>
+            </div>
+            
+            <!-- Quick Start -->
+            <div style="background: #e0f2fe; padding: 30px; border-radius: 15px; margin: 30px 0;">
+                <h3 style="color: #01579b; margin-bottom: 20px; text-align: center;">
+                    🚀 クイックスタート
+                </h3>
+                <ol style="color: #01579b; line-height: 1.8;">
+                    <li><strong>YouTube分析デモ</strong>をクリック</li>
+                    <li>YouTubeのURL（任意の動画）を入力</li>
+                    <li>分析開始ボタンをクリック</li>
+                    <li>埋め込み動画を見ながら分析結果を確認</li>
+                    <li>ハイライトボタンで重要シーンにジャンプ</li>
+                </ol>
+            </div>
+            
+            <!-- Notice -->
+            <div class="notice">
+                <h3 style="margin-top: 0;">ℹ️ プロジェクト情報</h3>
+                <p><strong>作成者:</strong> 三坂 龍平</p>
+                <p><strong>目的:</strong> ゼミ課題1 - AI映像分析技術の学習・実装</p>
+                <p><strong>技術:</strong> HTML5, CSS3, JavaScript, YouTube Embed API</p>
+                <p><strong>特徴:</strong> 完全オフライン動作（YouTube版除く）</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
