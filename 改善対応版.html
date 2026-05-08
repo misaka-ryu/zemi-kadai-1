@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>映像分析プラットフォーム - 改善対応版 v1.0</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .version-header {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .version-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .feedback-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+        
+        .feedback-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .improvement-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .main-content {
+            padding: 40px;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #e9ecef;
+            border: none;
+            font-size: 16px;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .tab.active {
+            background: #ff0000;
+            color: white;
+        }
+        
+        .tab:hover {
+            background: #cc0000;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .youtube-input-section {
+            background: #f8f9fa;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .improvement-note {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .url-input-container {
+            display: flex;
+            gap: 15px;
+            max-width: 800px;
+            margin: 20px auto;
+            flex-wrap: wrap;
+        }
+        
+        .url-input {
+            flex: 1;
+            min-width: 300px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .url-input:focus {
+            outline: none;
+            border-color: #ff0000;
+            box-shadow: 0 0 10px rgba(255,0,0,0.2);
+        }
+        
+        .analyze-btn {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 150px;
+        }
+        
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,0,0,0.3);
+        }
+        
+        .analyze-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .feedback-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 380px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.2);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .feedback-panel.open {
+            right: 0;
+        }
+        
+        .feedback-header {
+            background: #28a745;
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+        }
+        
+        .feedback-content {
+            padding: 20px;
+        }
+        
+        .feedback-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .feedback-textarea {
+            min-height: 100px;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+        }
+        
+        .feedback-submit {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .improvement-log {
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .version-changelog {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .changelog-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .changelog-type {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .changelog-new { background: #d4edda; color: #155724; }
+        .changelog-fix { background: #f8d7da; color: #721c24; }
+        .changelog-improve { background: #d1ecf1; color: #0c5460; }
+        
+        .video-container {
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 30px 0;
+            aspect-ratio: 16/9;
+            position: relative;
+        }
+        
+        .youtube-embed {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .sample-links {
+            margin: 20px 0;
+        }
+        
+        .sample-link {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .sample-link:hover {
+            background: #e0e0e0;
+        }
+        
+        .analysis-results {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .score-card {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .score-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .highlight-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            margin: 10px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .highlight-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        .score-badge {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f4f6;
+            border-top: 6px solid #ff0000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        .overlay.show {
+            display: block;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Feedback Overlay -->
+    <div id="overlay" class="overlay" onclick="closeFeedback()"></div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        フィードバックありがとうございます！改善に活用させていただきます。
+    </div>
+    
+    <div class="container">
+        <!-- Version Header -->
+        <div class="version-header">
+            <div class="version-info">
+                <span>🔄 改善対応版</span>
+                <span>Version 1.0</span>
+                <span>最終更新: 2026/05/01</span>
+            </div>
+            <button class="feedback-btn" onclick="openFeedback()">
+                💬 フィードバック
+            </button>
+        </div>
+        
+        <!-- Main Header -->
+        <div class="header">
+            <h1>📺 YouTube映像分析プラットフォーム</h1>
+            <div class="improvement-badge">🔄 継続改善版</div>
+            <p style="margin-top: 15px; opacity: 0.9;">
+                使いながら改善していく、進化する映像分析プラットフォーム
+            </p>
+        </div>
+
+        <div class="main-content">
+            <!-- Version Changelog -->
+            <div class="version-changelog">
+                <h3 style="margin-top: 0;">📝 改善履歴 (Version 1.0)</h3>
+                <div class="changelog-item">
+                    <span class="changelog-type changelog-new">NEW</span>
+                    <span>フィードバック収集機能を追加</span>
+                </div>
+                <div class="changelog-item">
+                    <span class="changelog-type changelog-new">NEW</span>
+                    <span>バージョン管理システムを実装</span>
+                </div>
+                <div class="changelog-item">
+                    <span class="changelog-type changelog-improve">改善</span>
+                    <span>YouTube URL検証機能を強化</span>
+                </div>
+                <div class="changelog-item">
+                    <span class="changelog-type changelog-improve">改善</span>
+                    <span>分析結果表示の視認性を向上</span>
+                </div>
+            </div>
+            
+            <!-- Tab Navigation -->
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('youtube')">📺 YouTube分析</button>
+                <button class="tab" onclick="showTab('results')">🎯 分析結果</button>
+                <button class="tab" onclick="showTab('improvements')">🔄 改善案</button>
+            </div>
+
+            <!-- YouTube Analysis Tab -->
+            <div id="youtube" class="tab-content active">
+                <h2 style="text-align: center; color: #ff0000; margin-bottom: 30px;">
+                    📺 YouTube動画を分析
+                </h2>
+                
+                <!-- URL Input Section -->
+                <div class="youtube-input-section">
+                    <div class="improvement-note">URL検証強化済み</div>
+                    <h3>🔗 YouTube URLを入力</h3>
+                    <div class="url-input-container">
+                        <input 
+                            type="text" 
+                            id="youtube-url" 
+                            class="url-input" 
+                            placeholder="例: https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                            oninput="validateUrl()"
+                        >
+                        <button class="analyze-btn" id="analyze-btn" onclick="analyzeYouTubeVideo()" disabled>
+                            🔍 分析開始
+                        </button>
+                    </div>
+                    
+                    <div class="sample-links">
+                        <p style="margin-bottom: 10px; color: #666;">📋 サンプル動画で試す:</p>
+                        <a class="sample-link" onclick="loadSample('music')">🎵 音楽動画</a>
+                        <a class="sample-link" onclick="loadSample('comedy')">😂 コメディ</a>
+                        <a class="sample-link" onclick="loadSample('tutorial')">📚 チュートリアル</a>
+                        <a class="sample-link" onclick="loadSample('sports')">⚽ スポーツ</a>
+                    </div>
+                </div>
+
+                <!-- Video Display Area -->
+                <div id="video-display" style="display: none;">
+                    <div class="video-container">
+                        <iframe id="youtube-player" class="youtube-embed" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis Results Tab -->
+            <div id="results" class="tab-content">
+                <div id="results-loading" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <h3>🤖 YouTube動画を分析中...</h3>
+                    <p>動画コンテンツを詳細分析しています。お待ちください。</p>
+                </div>
+                
+                <div id="results-content">
+                    <h2>🎯 YouTube動画分析結果</h2>
+                    
+                    <div id="sample-results" style="display: none;">
+                        <!-- Overall Scores -->
+                        <div class="analysis-results">
+                            <h3 style="text-align: center; margin-bottom: 25px;">🏆 総合分析スコア</h3>
+                            <div class="score-grid">
+                                <div class="score-card">
+                                    <div class="score-number" style="color: #ff0000;">92</div>
+                                    <div>YouTube最適度</div>
+                                </div>
+                                <div class="score-card">
+                                    <div class="score-number" style="color: #28a745;">85</div>
+                                    <div>視聴維持率</div>
+                                </div>
+                                <div class="score-card">
+                                    <div class="score-number" style="color: #ffc107;">78</div>
+                                    <div>サムネイル効果</div>
+                                </div>
+                                <div class="score-card">
+                                    <div class="score-number" style="color: #17a2b8;">81</div>
+                                    <div>コメント誘発度</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Highlights -->
+                        <div class="analysis-results">
+                            <h3>⚡ 検出されたハイライト</h3>
+                            
+                            <div class="highlight-item" onclick="jumpToTime(15)">
+                                <div>
+                                    <strong>⚡ 0:15 - ハイライト開始</strong><br>
+                                    <span style="color: #666;">視聴者の関心を引く瞬間</span>
+                                </div>
+                                <div class="score-badge">95</div>
+                            </div>
+                            
+                            <div class="highlight-item" onclick="jumpToTime(94)">
+                                <div>
+                                    <strong>🎵 1:34 - エンゲージメントピーク</strong><br>
+                                    <span style="color: #666;">最も盛り上がるシーン</span>
+                                </div>
+                                <div class="score-badge">91</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Improvements Tab -->
+            <div id="improvements" class="tab-content">
+                <h2>🔄 継続改善システム</h2>
+                
+                <div class="improvement-log">
+                    <h3>📈 改善プロセス</h3>
+                    <p><strong>アジャイル開発方式</strong>を採用し、ユーザーフィードバックに基づく継続的改善を実施しています。</p>
+                    
+                    <h4>🎯 改善サイクル</h4>
+                    <ol>
+                        <li><strong>使用体験</strong> - 実際にプラットフォームを使用</li>
+                        <li><strong>問題発見</strong> - UI/UX、機能面での課題特定</li>
+                        <li><strong>フィードバック収集</strong> - ユーザーからの意見・要望</li>
+                        <li><strong>改善実装</strong> - 段階的な機能追加・修正</li>
+                        <li><strong>バージョンアップ</strong> - 新版リリース</li>
+                    </ol>
+                </div>
+                
+                <div class="analysis-results">
+                    <h3>🚀 予定されている改善項目</h3>
+                    
+                    <div style="display: grid; gap: 15px;">
+                        <div style="padding: 15px; background: white; border-radius: 10px;">
+                            <h4 style="color: #28a745; margin: 0 0 10px 0;">🔄 Version 1.1 (予定)</h4>
+                            <ul>
+                                <li>動画プレビュー機能の追加</li>
+                                <li>分析結果のエクスポート機能</li>
+                                <li>カスタムハイライト時間設定</li>
+                                <li>UI/UXの改善</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="padding: 15px; background: white; border-radius: 10px;">
+                            <h4 style="color: #17a2b8; margin: 0 0 10px 0;">🎯 Version 1.2 (予定)</h4>
+                            <ul>
+                                <li>リアルタイム分析機能</li>
+                                <li>複数動画の一括分析</li>
+                                <li>分析履歴の管理</li>
+                                <li>モバイルアプリ版の検討</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="padding: 15px; background: white; border-radius: 10px;">
+                            <h4 style="color: #6f42c1; margin: 0 0 10px 0;">🔮 Future (将来)</h4>
+                            <ul>
+                                <li>AI分析精度の向上</li>
+                                <li>他プラットフォーム対応（TikTok, Instagram等）</li>
+                                <li>チーム機能・コラボレーション</li>
+                                <li>API公開・外部連携</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Panel -->
+    <div id="feedback-panel" class="feedback-panel">
+        <div class="feedback-header">
+            <h3 style="margin: 0;">💬 フィードバック</h3>
+            <button onclick="closeFeedback()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer; float: right;">&times;</button>
+        </div>
+        <div class="feedback-content">
+            <p>あなたの使用体験をお聞かせください。いただいたフィードバックは次のバージョンで改善に活用されます。</p>
+            
+            <form class="feedback-form" onsubmit="submitFeedback(event)">
+                <label>📝 使用感・改善要望</label>
+                <textarea class="feedback-textarea" placeholder="使いやすかった点、改善してほしい点、新機能の要望など、何でもお書きください。" required></textarea>
+                
+                <label>⭐ 評価</label>
+                <select style="padding: 10px; border: 2px solid #ddd; border-radius: 8px;">
+                    <option value="5">⭐⭐⭐⭐⭐ とても良い</option>
+                    <option value="4">⭐⭐⭐⭐ 良い</option>
+                    <option value="3">⭐⭐⭐ 普通</option>
+                    <option value="2">⭐⭐ 改善が必要</option>
+                    <option value="1">⭐ 大幅改善が必要</option>
+                </select>
+                
+                <label>🎯 重要だと思う改善項目</label>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label><input type="checkbox"> UI/UXの改善</label>
+                    <label><input type="checkbox"> 分析精度の向上</label>
+                    <label><input type="checkbox"> 新機能の追加</label>
+                    <label><input type="checkbox"> 処理速度の改善</label>
+                    <label><input type="checkbox"> モバイル対応</label>
+                </div>
+                
+                <button type="submit" class="feedback-submit">📤 フィードバック送信</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // YouTube URL validation and extraction
+        function validateUrl() {
+            const urlInput = document.getElementById('youtube-url');
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const url = urlInput.value.trim();
+            
+            if (url === '') {
+                analyzeBtn.disabled = true;
+                return;
+            }
+            
+            const videoId = extractVideoId(url);
+            if (videoId) {
+                analyzeBtn.disabled = false;
+                urlInput.style.borderColor = '#28a745';
+            } else {
+                analyzeBtn.disabled = true;
+                urlInput.style.borderColor = '#dc3545';
+            }
+        }
+        
+        function extractVideoId(url) {
+            const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+        
+        // Sample video loading
+        function loadSample(type) {
+            const samples = {
+                'music': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                'comedy': 'https://www.youtube.com/watch?v=jNQXAC9IVRw',
+                'tutorial': 'https://www.youtube.com/watch?v=kJQP7kiw5Fk',
+                'sports': 'https://www.youtube.com/watch?v=ZXsQAXx_ao0'
+            };
+            
+            if (samples[type]) {
+                document.getElementById('youtube-url').value = samples[type];
+                validateUrl();
+            }
+        }
+        
+        // YouTube video analysis
+        function analyzeYouTubeVideo() {
+            const url = document.getElementById('youtube-url').value.trim();
+            const videoId = extractVideoId(url);
+            
+            if (!videoId) {
+                return;
+            }
+            
+            // Show video
+            loadYouTubeVideo(videoId);
+            
+            // Show analysis results
+            showTab('results');
+            startYouTubeAnalysis();
+        }
+        
+        function loadYouTubeVideo(videoId) {
+            const videoDisplay = document.getElementById('video-display');
+            const player = document.getElementById('youtube-player');
+            
+            player.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1`;
+            videoDisplay.style.display = 'block';
+            window.currentVideoId = videoId;
+        }
+        
+        function jumpToTime(seconds) {
+            if (window.currentVideoId) {
+                const player = document.getElementById('youtube-player');
+                player.src = `https://www.youtube.com/embed/${window.currentVideoId}?start=${seconds}&autoplay=1`;
+            }
+        }
+        
+        function startYouTubeAnalysis() {
+            const loading = document.getElementById('results-loading');
+            const content = document.getElementById('results-content');
+            const sampleResults = document.getElementById('sample-results');
+            
+            loading.style.display = 'block';
+            content.style.display = 'none';
+            
+            setTimeout(function() {
+                loading.style.display = 'none';
+                content.style.display = 'block';
+                sampleResults.style.display = 'block';
+            }, 3000);
+        }
+        
+        // Tab switching
+        function showTab(tabId) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        // Feedback system
+        function openFeedback() {
+            document.getElementById('feedback-panel').classList.add('open');
+            document.getElementById('overlay').classList.add('show');
+        }
+        
+        function closeFeedback() {
+            document.getElementById('feedback-panel').classList.remove('open');
+            document.getElementById('overlay').classList.remove('show');
+        }
+        
+        function submitFeedback(event) {
+            event.preventDefault();
+            
+            // フィードバック送信のシミュレーション
+            setTimeout(() => {
+                closeFeedback();
+                showToast();
+                
+                // フォームをリセット
+                event.target.reset();
+            }, 500);
+        }
+        
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            validateUrl();
+        });
+    </script>
+</body>
+</html>
