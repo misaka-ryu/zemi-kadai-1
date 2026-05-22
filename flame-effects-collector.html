@@ -376,7 +376,7 @@
                        accept="video/*" 
                        id="videoInput">
                 
-                <button class="pixel-button" onclick="document.getElementById('videoInput').click()">
+                <button class="pixel-button" onclick="selectVideoFile()">
                     📁 SELECT VIDEO
                 </button>
                 
@@ -405,9 +405,19 @@
 
         // 初期化
         document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
-            createParticles();
-            displayVideos();
+            console.log('🔥 炎エフェクトコレクター 開始');
+            console.log('ブラウザ:', navigator.userAgent);
+            console.log('ローカルストレージ対応:', typeof(Storage) !== "undefined");
+            
+            try {
+                initializeApp();
+                createParticles();
+                displayVideos();
+                console.log('初期化完了. 保存済み動画数:', videos.length);
+            } catch (error) {
+                console.error('初期化エラー:', error);
+                alert('アプリの初期化でエラーが発生しました: ' + error.message);
+            }
         });
 
         // アプリ初期化
@@ -415,62 +425,146 @@
             const videoInput = document.getElementById('videoInput');
             const videoTitle = document.getElementById('videoTitle');
 
+            if (!videoInput || !videoTitle) {
+                console.error('必要な要素が見つかりません');
+                return;
+            }
+
             videoInput.addEventListener('change', function(e) {
-                selectedFile = e.target.files[0];
-                if (selectedFile) {
-                    const fileName = selectedFile.name.replace(/\.[^/.]+$/, "");
-                    if (!videoTitle.value) {
-                        videoTitle.value = fileName;
+                try {
+                    selectedFile = e.target.files[0];
+                    console.log('ファイル選択:', selectedFile);
+                    
+                    if (selectedFile) {
+                        // ファイルタイプチェック
+                        if (!selectedFile.type.startsWith('video/')) {
+                            alert('❌ 動画ファイルを選択してください。\n\n現在選択: ' + selectedFile.type);
+                            e.target.value = '';
+                            selectedFile = null;
+                            return;
+                        }
+
+                        const fileName = selectedFile.name.replace(/\.[^/.]+$/, "");
+                        if (!videoTitle.value) {
+                            videoTitle.value = fileName;
+                        }
+                        createFlameEffect();
+                        
+                        // 選択成功メッセージ
+                        showSuccessMessage('📁 ファイル選択完了: ' + selectedFile.name);
                     }
-                    createFlameEffect();
+                } catch (error) {
+                    console.error('ファイル選択エラー:', error);
+                    alert('ファイル選択でエラーが発生しました: ' + error.message);
                 }
             });
 
             videoTitle.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
+                    e.preventDefault();
                     addVideo();
                 }
             });
+
+            // デバッグ用
+            console.log('アプリ初期化完了');
         }
 
         // 動画追加機能
         function addVideo() {
-            const titleInput = document.getElementById('videoTitle');
-            const title = titleInput.value.trim();
+            try {
+                const titleInput = document.getElementById('videoTitle');
+                const title = titleInput.value.trim();
 
-            if (!selectedFile) {
-                alert('動画ファイルを選択してください！');
-                return;
-            }
-
-            if (!title) {
-                alert('炎エフェクトの名前を入力してください！');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const videoData = {
-                    id: Date.now(),
+                // デバッグ情報
+                console.log('Add Video 開始:', {
+                    selectedFile: selectedFile,
                     title: title,
-                    data: e.target.result,
-                    addedAt: new Date().toISOString()
+                    videoCount: videos.length
+                });
+
+                if (!selectedFile) {
+                    alert('📁 動画ファイルを選択してください！\n\n"SELECT VIDEO"ボタンを押してファイルを選択してください。');
+                    return;
+                }
+
+                // ファイルタイプチェック
+                if (!selectedFile.type.startsWith('video/')) {
+                    alert('❌ 選択されたファイルは動画ファイルではありません。\n\n対応形式: MP4, AVI, MOV, WebM など');
+                    return;
+                }
+
+                // ファイルサイズチェック（100MB制限）
+                if (selectedFile.size > 100 * 1024 * 1024) {
+                    alert('⚠️ ファイルサイズが大きすぎます（100MB制限）\n\n動画を圧縮するか、短くカットしてください。');
+                    return;
+                }
+
+                if (!title) {
+                    alert('📝 炎エフェクトの名前を入力してください！\n\n例: "ファイアボール", "ドラゴンブレス" など');
+                    return;
+                }
+
+                // 読み込み中表示
+                const addButton = document.getElementById('addButton');
+                const originalText = addButton.innerHTML;
+                addButton.innerHTML = '⏳ LOADING...';
+                addButton.disabled = true;
+
+                const reader = new FileReader();
+                
+                reader.onerror = function() {
+                    console.error('FileReader エラー');
+                    alert('❌ ファイル読み込みエラーが発生しました。\n\n別のファイルを試すか、ブラウザを再読み込みしてください。');
+                    addButton.innerHTML = originalText;
+                    addButton.disabled = false;
                 };
 
-                videos.push(videoData);
-                saveVideos();
-                displayVideos();
+                reader.onload = function(e) {
+                    try {
+                        const videoData = {
+                            id: Date.now(),
+                            title: title,
+                            data: e.target.result,
+                            addedAt: new Date().toISOString(),
+                            fileSize: selectedFile.size,
+                            fileType: selectedFile.type
+                        };
+
+                        console.log('動画データ作成完了:', videoData.id);
+
+                        videos.push(videoData);
+                        saveVideos();
+                        displayVideos();
+                        
+                        // フォームリセット
+                        titleInput.value = '';
+                        document.getElementById('videoInput').value = '';
+                        selectedFile = null;
+
+                        // ボタンリセット
+                        addButton.innerHTML = originalText;
+                        addButton.disabled = false;
+
+                        createFlameEffect();
+                        showSuccessMessage('🔥 炎エフェクトが追加されました！');
+                        
+                        console.log('動画追加完了. 総数:', videos.length);
+                    } catch (error) {
+                        console.error('動画保存エラー:', error);
+                        alert('❌ データ保存エラーが発生しました。\n\n' + error.message);
+                        addButton.innerHTML = originalText;
+                        addButton.disabled = false;
+                    }
+                };
+
+                console.log('ファイル読み込み開始...');
+                reader.readAsDataURL(selectedFile);
                 
-                // フォームリセット
-                titleInput.value = '';
-                document.getElementById('videoInput').value = '';
-                selectedFile = null;
-
-                createFlameEffect();
-                showSuccessMessage('炎エフェクトが追加されました！🔥');
-            };
-
-            reader.readAsDataURL(selectedFile);
+            } catch (error) {
+                console.error('AddVideo 関数エラー:', error);
+                alert('❌ 予期しないエラーが発生しました。\n\n' + error.message + '\n\nページを再読み込みして再試行してください。');
+            }
         }
 
         // 動画表示
@@ -558,7 +652,18 @@
 
         // データ保存
         function saveVideos() {
-            localStorage.setItem('flameVideos', JSON.stringify(videos));
+            try {
+                const dataString = JSON.stringify(videos);
+                localStorage.setItem('flameVideos', dataString);
+                console.log('データ保存完了. サイズ:', Math.round(dataString.length / 1024) + 'KB');
+            } catch (error) {
+                console.error('保存エラー:', error);
+                if (error.name === 'QuotaExceededError') {
+                    alert('⚠️ ストレージ容量が不足しています。\n\n古い動画を削除してから再試行してください。');
+                } else {
+                    alert('データ保存エラー: ' + error.message);
+                }
+            }
         }
 
         // 炎エフェクト作成
@@ -619,11 +724,28 @@
             }, 3000);
         }
 
+        // ファイル選択機能
+        function selectVideoFile() {
+            try {
+                const videoInput = document.getElementById('videoInput');
+                if (videoInput) {
+                    videoInput.click();
+                    console.log('ファイル選択ダイアログを開きました');
+                } else {
+                    console.error('videoInput要素が見つかりません');
+                    alert('ファイル選択機能でエラーが発生しました。ページを再読み込みしてください。');
+                }
+            } catch (error) {
+                console.error('ファイル選択エラー:', error);
+                alert('ファイル選択でエラーが発生しました: ' + error.message);
+            }
+        }
+
         // キーボードショートカット
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.key === 'u') {
                 e.preventDefault();
-                document.getElementById('videoInput').click();
+                selectVideoFile();
             }
         });
     </script>
